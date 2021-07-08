@@ -238,13 +238,13 @@ void printBME() {
     Serial.print("temp: ");
     Serial.println(bme.readTemperature());
 
-    Serial.print("pres (hPa): ");
+    Serial.print("pres: ");
     Serial.println(bme.readPressure() / 100.0F);
 
-    Serial.print("aalt (m): ");
+    Serial.print("aalt: ");
     Serial.println(bme.readAltitude(SEALEVELPRESSURE_HPA));
 
-    Serial.print("hum (%): ");
+    Serial.print("humi: ");
     Serial.println(bme.readHumidity());
 }
 
