@@ -1,8 +1,10 @@
 import logging
 import threading
+import random
 import serial
 import sys
 from tkinter import *
+
 
 
 class Sensor:
@@ -22,7 +24,6 @@ class Btn():
         self.name = name
         self.description = description
         self.number = number
-        
         self.on_color = "#16DC0F"
         self.off_color = "#DC0F16"
         self.error_color= "#000000"
@@ -47,6 +48,14 @@ class Btn():
     def pressButton(self, serial):
         serial.write(int(self.number).to_bytes(4, "little"))
 
+waageWidth = 200
+waageHeight = 200
+waageCenterX = waageWidth/2
+waageCenterY = waageHeight/2
+waageInnerRadius = 20
+multiplikatorX = (waageCenterX-waageInnerRadius)/10
+multiplikatorY = (waageCenterY-waageInnerRadius)/10
+waageLineWidth = 5
 
 sensor_labels = {}
 
@@ -66,10 +75,13 @@ buttons = {
     "out3_hi": Btn("out3_hi", "Wechselrichter", 3),
 }
 entries = {
-            'accx': '-0.31',
-            'accy': '0.23',
+            'accx': '0',
+            'accy': '0',
             'accz': '8.99',
         }
+
+canvas = ""
+bubble = ""
 
 def updateList(line):
     try:
@@ -80,6 +92,12 @@ def updateList(line):
             sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
         if (serial_buttons.__contains__(entryName) & buttons.__contains__(entryName)):
             serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
+        if (entries.__contains__(entryName)):
+            entries[entryName] = entryValue
+            if (canvas != "" and bubble != "" and entryName != 'accz'):
+                updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*float(entries["accx"]), waageCenterY+multiplikatorY*float(entries["accy"]),)
+
+        
     except Exception as e:
         logging.error("updateList: {}".format(e))
 
@@ -127,6 +145,18 @@ class Reader():
             self.alive = False
             self.thread_read.join()
 
+def escape(root):
+        root.geometry("200x200")
+
+def fullscreen(root):
+        width, height = root.winfo_screenwidth(), root.winfo_screenheight()
+        root.geometry("%dx%d+0+0" % (width, height))
+
+
+def updateCanvas(canvas, item, x, y):
+    x = x-waageInnerRadius
+    y = y-waageInnerRadius
+    canvas.moveto(item, x, y)
 
 if __name__ == "__main__":
     format = "%(asctime)s: %(message)s"
@@ -150,9 +180,50 @@ if __name__ == "__main__":
         logging.error("Main    : Error: {}".format(ser.name, e))
 
     root = Tk()
+    width, height = root.winfo_screenwidth(), root.winfo_screenheight()
+    
+    root.geometry("%dx%d+0+0" % (width, height))
+    root.bind("<Escape>", lambda a :escape(root))
+    #Added this for fun, when you'll press F1 it will return to a full screen.
+    root.bind("<F1>", lambda b: fullscreen(root))
     
     sensor_frame = Frame(root)
     button_frame = Frame(root)
+    waage_frame = Frame(root)
+
+
+
+    waage = Canvas(height=waageHeight, width=waageWidth, master=waage_frame)
+    waage.pack()
+    waage.create_oval(  waageLineWidth,
+                        waageLineWidth,
+                        waageWidth-waageLineWidth,
+                        waageHeight-waageLineWidth,
+                        width=5, fill="#476042")
+    waage.create_oval(  waageCenterX-75,
+                        waageCenterY-75,
+                        waageCenterX+75,
+                        waageCenterY+75,
+                        width=5, fill="#476042")
+    waage.create_oval(  waageCenterX-50,
+                        waageCenterY-50,
+                        waageCenterX+50,
+                        waageCenterY+50,
+                        width=5, fill="#476042")
+    waage.create_oval(  waageCenterX-25,
+                        waageCenterY-25,
+                        waageCenterX+25,
+                        waageCenterY+25,
+                        width=5, fill="#476042")
+
+    
+    bubble = waage.create_oval( 
+        waageCenterX+multiplikatorX*float(entries["accx"])-waageInnerRadius,
+        waageCenterY+waageCenterY*float(entries["accy"])-waageInnerRadius,
+        waageCenterX+multiplikatorX*float(entries["accx"])+waageInnerRadius,
+        waageCenterY+waageCenterY*float(entries["accy"])+waageInnerRadius,
+        width=2, fill="white")
+    
     
 
     label_temp = Label(text=sensors["temp"].updateValue(sensors["temp"].value), fg="#0A116B", master=sensor_frame)
@@ -173,23 +244,28 @@ if __name__ == "__main__":
 
 
     button = buttons["out1_hi"]
-    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=10, master=button_frame) #Todo: Add Serial
     btn1.pack(side=BOTTOM)
     serial_buttons[button.name] = btn1
 
     button = buttons["out2_hi"]
-    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=10, master=button_frame)#Todo: Add Serial
     btn2.pack(side=BOTTOM)
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
+    btn4 = Button(text="blubb", command=lambda: updateCanvas(waage, bubble), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
+    btn4.pack(side=BOTTOM)
+
+
     sensor_frame.pack(side=TOP)
     button_frame.pack(side=LEFT)
-    root.title("Arduino im Test")
+    waage_frame.pack(side=RIGHT)
+    
 
     root.mainloop()
 
