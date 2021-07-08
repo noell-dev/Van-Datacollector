@@ -5,32 +5,81 @@ import sys
 from tkinter import *
 
 
+class Sensor:
+    def __init__(self, name, description, value, unit):
+        self.description = description
+        self.name = name
+        self.value = value
+        self.unit = unit
+        self.label = Label(name=self.name, text="{}: {}{}".format(self.description, self.value, self.unit), fg="#000000")
+
+    def updateValue(self, value):
+        self.value = value
+        return "{}: {}{}".format(self.description, self.value, self.unit)
+
+class Btn():
+    def __init__(self, name, description, number,):
+        self.name = name
+        self.description = description
+        self.number = number
+        
+        self.on_color = "#16DC0F"
+        self.off_color = "#DC0F16"
+        self.error_color= "#000000"
+        self.color = self.off_color
+        self.name = name
+        self.text = description
+        self.number = number
+        self.is_on = False
+
+    def updateState(self, value):
+        if (value == 0):
+            self.is_on = False
+            self.color = self.off_color
+            
+        if (value == 1):
+            self.is_on = True
+            self.color = self.on_color
+        else:
+            self.color =  self.error_color
+        return self.color
+        
+    def pressButton(self, serial):
+        serial.write(int(self.number).to_bytes(4, "little"))
+
+
+sensor_labels = {}
+
+serial_buttons = {}
+
+    
+sensors = {
+    "temp": Sensor("temp", "Temperatur",   0.0, "°C"),
+    "humi": Sensor("humi", "Luftfeuchte",  0.0, "%"),
+    "pres": Sensor("pres", "Druck",        0.0, "hPa"),
+    "aalt": Sensor("aalt", "Höhe über NN", 0.0, "m"),
+}
+
+buttons = {
+    "out1_hi": Btn("out1_hi", "Wechselrichter", 1),
+    "out2_hi": Btn("out2_hi", "Wechselrichter", 2),
+    "out3_hi": Btn("out3_hi", "Wechselrichter", 3),
+}
 entries = {
-            'temp': '0',
-            'pres (hPa)': '0',
-            'aalt (m)': '0',
-            'hum (%)': '0',
             'accx': '-0.31',
             'accy': '0.23',
             'accz': '8.99',
-            'out1_hi': '0',
-            'out2_hi': '0',
-            'out3_hi': '0',
         }
 
 def updateList(line):
     try:
         newEntry = line.split(":")
-        if (entries.__contains__(newEntry[0])):
-            entries[newEntry[0]] = newEntry[1].strip()
-            if (newEntry[0] == "temp"):
-                label_temp.config(text="Temperatur: {}°C".format( newEntry[1]))
-            if (newEntry[0] == "pres (hPa)"):
-                label_pres.config(text="Druck: {}hPa".format( newEntry[1]))
-            if (newEntry[0] == "aalt (m)"):
-                label_aalt.config(text="Höhe über NN: {}m".format( newEntry[1]))
-            if (newEntry[0] == "hum (%)"):
-                label_humi.config(text="Luftfeuchte: {}%".format( newEntry[1]))
+        entryName = newEntry[0]
+        entryValue = newEntry[1].strip()
+        if (sensor_labels.__contains__(entryName) & sensors.__contains__(entryName)):
+            sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
+        if (serial_buttons.__contains__(entryName) & buttons.__contains__(entryName)):
+            serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
     except Exception as e:
         logging.error("updateList: {}".format(e))
 
@@ -97,39 +146,51 @@ if __name__ == "__main__":
     try:
         logging.info("Main    : start Reader")
         r.start()
-        # threading.Thread(target=ui_thread, args=(ser), daemon=True)
     except Exception as e:
         logging.error("Main    : Error: {}".format(ser.name, e))
 
     root = Tk()
+    
+    sensor_frame = Frame(root)
+    button_frame = Frame(root)
+    
 
-    def one() :
-        ser.write(int(1).to_bytes(4, "little"))
-        return
-    def two() :
-        ser.write(int(2).to_bytes(4, "little"))
-        return
-    def three() :
-        ser.write(int(3).to_bytes(4, "little"))
-        return
+    label_temp = Label(text=sensors["temp"].updateValue(sensors["temp"].value), fg="#0A116B", master=sensor_frame)
+    label_temp.pack(side=LEFT)
+    sensor_labels[sensors["temp"]] = label_temp
+
+    label_humi = Label(text=sensors["humi"].updateValue(sensors["humi"].value), fg="#0A116B", master=sensor_frame)
+    label_humi.pack(side=LEFT)
+    sensor_labels[sensors["humi"]] = label_humi
+
+    label_pres = Label(text=sensors["pres"].updateValue(sensors["pres"].value), fg="#0A116B", master=sensor_frame)
+    label_pres.pack(side=LEFT)
+    sensor_labels[sensors["pres"]] = label_pres
+
+    label_aalt = Label(text=sensors["aalt"].updateValue(sensors["aalt"].value), fg="#0A116B", master=sensor_frame)
+    label_aalt.pack(side=LEFT)
+    sensor_labels[sensors["aalt"]] = label_aalt
+
+
+    button = buttons["out1_hi"]
+    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn1.pack(side=BOTTOM)
+    serial_buttons[button.name] = btn1
+
+    button = buttons["out2_hi"]
+    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn2.pack(side=BOTTOM)
+    serial_buttons[button.name] = btn2
+
+    button = buttons["out3_hi"]
+    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), background=button.color, master=button_frame)
+    btn3.pack(side=BOTTOM)
+    serial_buttons[button.name] = btn3
+
+    sensor_frame.pack(side=TOP)
+    button_frame.pack(side=LEFT)
     root.title("Arduino im Test")
 
-    label_temp = Label(text="Temperatur: {}°C".format( entries["temp"]), fg="#0A116B")
-    label_temp.pack()
-    label_pres = Label(text="Druck: {}hPa".format( entries["pres (hPa)"]), fg="#0A116B")
-    label_pres.pack()
-    label_aalt = Label(text="Höhe über NN: {}m".format( entries["aalt (m)"]), fg="#0A116B")
-    label_aalt.pack()
-    label_humi = Label(text="Luftfeuchte: {}%".format( entries["hum (%)"]), fg="#0A116B")
-    label_humi.pack()
-
-
-    button_out1_hi = Button(text='1', command=one, background="#DC0F16", fg="#000000")
-    button_out1_hi.pack()
-    button_out2_hi = Button(text='2', command=two, background="#DC0F16", fg="#000000")
-    button_out2_hi.pack()
-    button_out3_hi = Button(text='3', command=three, background="#DC0F16", fg="#000000")
-    button_out3_hi.pack()
     root.mainloop()
 
 
