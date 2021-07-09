@@ -97,7 +97,7 @@ def updateList(line):
         elif (entryName in entries):
             entries[entryName] = entryValue
             logging.info("updateList: before gyr: {}".format(line))
-            if (canvas != "" and bubble != "" and entryName != 'accz'):
+            if ((canvas != "") and (bubble != "") and (entryName != 'accz')):
                 updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*float(entries["accx"]), waageCenterY+multiplikatorY*float(entries["accy"]),)
                 logging.info("updateList: qyro: {}".format(line))
         else:
