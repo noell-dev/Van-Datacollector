@@ -88,10 +88,10 @@ def updateList(line):
         newEntry = line.split(":")
         entryName = newEntry[0]
         entryValue = newEntry[1].strip()
-        if (entryName in sensor_labels & entryName in sensors):
+        if ((entryName in sensor_labels) & (entryName in sensors)):
             logging.info("updateList: sensor: {}".format(line))
             sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
-        elif (entryName in serial_buttons & entryName in buttons):
+        elif ((entryName in serial_buttons) & (entryName in buttons)):
             logging.info("updateList: button: {}".format(line))
             serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
         elif (entryName in entries):
