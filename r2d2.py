@@ -176,7 +176,7 @@ if __name__ == "__main__":
                         datefmt="%H:%M:%S")
 
     logging.info("Main    : create Serial")
-    ser = serial.serial_for_url("/dev/ttyACM1", do_not_open=True)
+    ser = serial.serial_for_url("/dev/ttyACM0", do_not_open=True)
     try:
         logging.info("Main    : open Serial")
         ser.open()
