@@ -101,7 +101,7 @@ def updateList(line):
             if ((canvas != "") and (bubble != "") and (entryName != 'accz')):
                 changex = float(old_accx) - float(entries["accx"])
                 changey = float(old_accy) - float(entries["accy"])
-                updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*changex, waageCenterY+multiplikatorY*changey,)
+                updateCanvas(canvas, bubble, multiplikatorX*changex, multiplikatorY*changey,)
                 logging.info("updateList: qyro: {}".format(line))
         else:
             logging.info("updateList: not recognized: {}".format(line))
