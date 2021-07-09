@@ -248,17 +248,17 @@ if __name__ == "__main__":
 
 
     button = buttons["out1_hi"]
-    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=10, master=button_frame) #Todo: Add Serial
+    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame) #Todo: Add Serial
     btn1.pack(side=BOTTOM)
     serial_buttons[button.name] = btn1
 
     button = buttons["out2_hi"]
-    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=10, master=button_frame)#Todo: Add Serial
+    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)#Todo: Add Serial
     btn2.pack(side=BOTTOM)
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=""), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
+    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
