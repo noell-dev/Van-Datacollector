@@ -102,8 +102,10 @@ def updateList(line):
                 logging.info("updateList: qyro: {}".format(line))
         else:
             logging.info("updateList: not recognized: {}".format(line))
-            logging.info("updateList: sensor_labels:: {}".format(sensor_labels))
-            logging.info("updateList: sensors:: {}".format(sensor_labels))
+            logging.info("updateList: sensor_labels:")
+            print(sensor_labels)
+            logging.info("updateList: sensors:")
+            print(sensors)
         
     except Exception as e:
         logging.error("updateList: {} - {}".format(e, line))
