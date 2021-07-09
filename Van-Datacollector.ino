@@ -226,10 +226,10 @@ void printOUT() {
   Serial.print("out1_hi: ");
   Serial.println(out1_high);
 
-  Serial.print("out1_hi: ");
+  Serial.print("out2_hi: ");
   Serial.println(out2_high);
 
-  Serial.print("out1_hi: ");
+  Serial.print("out3_hi: ");
   Serial.println(out3_high);
 }
 

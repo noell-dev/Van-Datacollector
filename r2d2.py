@@ -88,14 +88,13 @@ def updateList(line):
         newEntry = line.split(":")
         entryName = newEntry[0]
         entryValue = newEntry[1].strip()
-        if (sensor_labels.__contains__(entryName) & sensors.__contains__(entryName)):
+        if (entryName in sensor_labels & entryName in sensors):
             logging.info("updateList: sensor: {}".format(line))
             sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
-        elif (serial_buttons.__contains__(entryName) & buttons.__contains__(entryName)):
+        elif (entryName in serial_buttons & entryName in buttons):
             logging.info("updateList: button: {}".format(line))
             serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
-        elif (entries.__contains__(entryName)):
-            
+        elif (entryName in entries):
             entries[entryName] = entryValue
             if (canvas != "" and bubble != "" and entryName != 'accz'):
                 updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*float(entries["accx"]), waageCenterY+multiplikatorY*float(entries["accy"]),)
