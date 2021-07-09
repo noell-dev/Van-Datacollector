@@ -49,7 +49,7 @@ class Btn():
         return self.color
         
     def pressButton(self, serial):
-        logging.debug("pressButton")
+        logging.info("pressButton {}".format(self.number))
         serial.write(int(self.number).to_bytes(4, "little"))
 
 waageWidth = 200
