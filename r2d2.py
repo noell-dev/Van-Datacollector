@@ -224,7 +224,7 @@ if __name__ == "__main__":
                         waageCenterY+25,
                         width=5, fill="#476042")
 
-    
+    canvas = waage
     bubble = waage.create_oval( 
         waageCenterX+multiplikatorX*float(entries["accx"])-waageInnerRadius,
         waageCenterY+waageCenterY*float(entries["accy"])-waageInnerRadius,
