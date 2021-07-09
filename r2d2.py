@@ -89,10 +89,10 @@ def updateList(line):
         entryName = newEntry[0]
         entryValue = newEntry[1].strip()
         if ((entryName in sensor_labels) & (entryName in sensors)):
-            logging.info("updateList: sensor: {}".format(line))
+            logging.debug("updateList: sensor: {}".format(line))
             sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
         elif ((entryName in serial_buttons) & (entryName in buttons)):
-            logging.info("updateList: button: {}".format(line))
+            logging.debug("updateList: button: {}".format(line))
             serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
         elif (entryName in entries):
             old_accx = entries["accx"]
@@ -102,9 +102,9 @@ def updateList(line):
                 changex = float(old_accx) - float(entries["accx"])
                 changey = float(old_accy) - float(entries["accy"])
                 updateCanvas(canvas, bubble, multiplikatorX*changex, multiplikatorY*changey,)
-                logging.info("updateList: qyro: {}".format(line))
+                logging.debug("updateList: qyro: {}".format(line))
         else:
-            logging.info("updateList: not recognized: {}".format(line))
+            logging.debug("updateList: not recognized: {}".format(line))
         
     except Exception as e:
         logging.error("updateList: {} - {}".format(e, line))
