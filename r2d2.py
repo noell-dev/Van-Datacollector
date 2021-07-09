@@ -5,6 +5,9 @@ import serial
 import sys
 from tkinter import *
 
+# ToDo: Documentation
+# Todo: Aufräumen
+# ToDo: Button presses
 
 
 class Sensor:
@@ -46,6 +49,7 @@ class Btn():
         return self.color
         
     def pressButton(self, serial):
+        logging.debug("pressButton")
         serial.write(int(self.number).to_bytes(4, "little"))
 
 waageWidth = 200
@@ -252,22 +256,19 @@ if __name__ == "__main__":
 
 
     button = buttons["out1_hi"]
-    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame) #Todo: Add Serial
+    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)
     btn1.pack(side=BOTTOM)
     serial_buttons[button.name] = btn1
 
     button = buttons["out2_hi"]
-    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)#Todo: Add Serial
+    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)
     btn2.pack(side=BOTTOM)
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
+    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=5, master=button_frame)
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
-
-    btn4 = Button(text="blubb", command=lambda: updateCanvas(waage, bubble, 50, 50), bg="green", width=20, height=5, master=button_frame)
-    btn4.pack(side=BOTTOM)
 
 
     sensor_frame.pack(side=TOP)
