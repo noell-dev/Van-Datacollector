@@ -102,10 +102,6 @@ def updateList(line):
                 logging.info("updateList: qyro: {}".format(line))
         else:
             logging.info("updateList: not recognized: {}".format(line))
-            logging.info("updateList: sensor_labels:")
-            print(sensor_labels)
-            logging.info("updateList: sensors:")
-            print(sensors)
         
     except Exception as e:
         logging.error("updateList: {} - {}".format(e, line))
@@ -237,19 +233,19 @@ if __name__ == "__main__":
 
     label_temp = Label(text=sensors["temp"].updateValue(sensors["temp"].value), fg="#0A116B", master=sensor_frame)
     label_temp.pack(side=LEFT)
-    sensor_labels[sensors["temp"]] = label_temp
+    sensor_labels[sensors["temp"].name] = label_temp
 
     label_humi = Label(text=sensors["humi"].updateValue(sensors["humi"].value), fg="#0A116B", master=sensor_frame)
     label_humi.pack(side=LEFT)
-    sensor_labels[sensors["humi"]] = label_humi
+    sensor_labels[sensors["humi"].name] = label_humi
 
     label_pres = Label(text=sensors["pres"].updateValue(sensors["pres"].value), fg="#0A116B", master=sensor_frame)
     label_pres.pack(side=LEFT)
-    sensor_labels[sensors["pres"]] = label_pres
+    sensor_labels[sensors["pres"].name] = label_pres
 
     label_aalt = Label(text=sensors["aalt"].updateValue(sensors["aalt"].value), fg="#0A116B", master=sensor_frame)
     label_aalt.pack(side=LEFT)
-    sensor_labels[sensors["aalt"]] = label_aalt
+    sensor_labels[sensors["aalt"].name] = label_aalt
 
 
     button = buttons["out1_hi"]
