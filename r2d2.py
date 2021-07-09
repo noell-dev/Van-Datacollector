@@ -99,7 +99,7 @@ def updateList(line):
 
         
     except Exception as e:
-        logging.error("updateList: {}".format(e))
+        logging.error("updateList: {} - {}".format(e, line))
 
 class Reader():
     def __init__(self, serial_instance, debug=False):
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
-    btn4 = Button(text="blubb", command=lambda: updateCanvas(waage, bubble), bg="#DC0F16", width=20, height=5, master=button_frame)#Todo: Add Serial
+    btn4 = Button(text="blubb", command=lambda: updateCanvas(waage, bubble, 50, 50), bg="green", width=20, height=5, master=button_frame)
     btn4.pack(side=BOTTOM)
 
 
