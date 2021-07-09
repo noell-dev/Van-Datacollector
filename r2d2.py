@@ -95,13 +95,11 @@ def updateList(line):
             logging.info("updateList: button: {}".format(line))
             serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
         elif (entryName in entries):
+            old_accx = entries["accx"]
+            old_accy = entries["accy"]
             entries[entryName] = entryValue
-            logging.info("updateList: before gyr: {}".format(line))
-            print(canvas)
-            print(bubble)
-            
             if ((canvas != "") and (bubble != "") and (entryName != 'accz')):
-                updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*float(entries["accx"]), waageCenterY+multiplikatorY*float(entries["accy"]),)
+                updateCanvas(canvas, bubble, waageCenterX+multiplikatorX*float(old_accx - entries["accx"]), waageCenterY+multiplikatorY*float(old_accy - entries["accy"]),)
                 logging.info("updateList: qyro: {}".format(line))
         else:
             logging.info("updateList: not recognized: {}".format(line))
@@ -162,9 +160,9 @@ def fullscreen(root):
 
 
 def updateCanvas(canvas, item, x, y):
-    x = x-waageInnerRadius
-    y = y-waageInnerRadius
-    canvas.moveto(item, x, y)
+    # x = x-waageInnerRadius
+    # y = y-waageInnerRadius
+    canvas.move(item, x, y)
 
 if __name__ == "__main__":
     format = "%(asctime)s: %(message)s"
