@@ -108,7 +108,7 @@ def updateList(line):
                 updateCanvas(canvas, bubble, multiplikatorX*changex, multiplikatorY*changey,)
                 logging.debug("updateList: qyro: {}".format(line))
         else:
-            logging.debug("updateList: not recognized: {}".format(line))
+            logging.error("updateList: not recognized: {}".format(line))
         
     except Exception as e:
         logging.error("updateList: {} - {}".format(e, line))

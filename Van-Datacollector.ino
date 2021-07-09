@@ -181,7 +181,7 @@ void loop() {
       break;
     case 3:
       if(out3_high) {
-         out3_high = false;
+        out3_high = false;
         digitalWrite(out3, LOW);
       } else
       {
@@ -216,6 +216,9 @@ void serialEvent() {
     inputString += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
+    if (inChar == '\r') {
+      stringComplete = true;
+    }
     if (inChar == '\n') {
       stringComplete = true;
     }
