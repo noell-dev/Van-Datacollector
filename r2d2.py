@@ -99,7 +99,8 @@ def updateList(line):
             sensor_labels[entryName].config(text=sensors[entryName].updateValue(entryValue))
         elif ((entryName in serial_buttons) & (entryName in buttons)):
             logging.debug("updateList: button: {}".format(line))
-            serial_buttons[entryName].config(background=buttons[entryName].updateState(entryValue))
+            newColor = buttons[entryName].updateState(entryValue)
+            serial_buttons[entryName].config(background=newColor, highlightbackground=newColor)
         elif (entryName in entries):
             old_accx = entries["accx"]
             old_accy = entries["accy"]
@@ -256,7 +257,7 @@ if __name__ == "__main__":
 
 
     button = buttons["out1_hi"]
-    btn1 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, number=1), bg="#DC0F16", width=20, height=10, master=button_frame, highlightBackground="#DC0F16")
+    btn1 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, number=1), bg="#DC0F16", width=20, height=10, master=button_frame, highlightbackground="#DC0F16")
     btn1.pack(side=BOTTOM)
     serial_buttons[button.name] = btn1
 
@@ -266,7 +267,7 @@ if __name__ == "__main__":
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, number=3), bg="#DC0F16", width=20, height=5, master=button_frame, activeBackground="#DC0F16")
+    btn3 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, number=3), bg="#DC0F16", width=20, height=5, master=button_frame, highlightbackground="#DC0F16")
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
