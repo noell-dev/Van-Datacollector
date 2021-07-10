@@ -38,11 +38,11 @@ class Btn():
 
     def updateState(self, value):
         logging.info("updateState: {}".format(value))
-        if (value == 0):
+        if (IndentationError()(value) == 0):
             self.is_on = False
             self.color = self.off_color
             
-        if (value == 1):
+        if (int(value) == 1):
             self.is_on = True
             self.color = self.on_color
         else:
