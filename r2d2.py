@@ -37,6 +37,7 @@ class Btn():
         self.is_on = False
 
     def updateState(self, value):
+        logging.info("updateState: {}".format(value))
         if (value == 0):
             self.is_on = False
             self.color = self.off_color
@@ -265,7 +266,7 @@ if __name__ == "__main__":
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, numer=3), bg="#DC0F16", width=20, height=5, master=button_frame)
+    btn3 = Button(name=button.name, text=button.description, command=lambda: pressButton(serial=ser, number=3), bg="#DC0F16", width=20, height=5, master=button_frame)
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
@@ -276,7 +277,3 @@ if __name__ == "__main__":
     
 
     root.mainloop()
-
-
-        
-    
