@@ -40,9 +40,8 @@ class Btn():
         logging.info("updateState: {} of type {}".format(value, type(value)))
         if (int(value) == 0):
             self.is_on = False
-            self.color = self.off_color
-            
-        if (int(value) == 1):
+            self.color = self.off_color    
+        elif (int(value) == 1):
             self.is_on = True
             self.color = self.on_color
         else:
