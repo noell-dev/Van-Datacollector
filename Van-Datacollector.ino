@@ -34,7 +34,7 @@ Adafruit_BME280 bme; // I2C
 //Adafruit_BME280 bme(BME_CS); // hardware SPI
 //Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
-unsigned long delayTime = 1000;
+unsigned long delayTime = 10;
 
 String inputString = "";      // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
