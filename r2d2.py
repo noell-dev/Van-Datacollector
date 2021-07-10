@@ -37,7 +37,7 @@ class Btn():
         self.is_on = False
 
     def updateState(self, value):
-        logging.info("updateState: {}".format(value))
+        logging.info("updateState: {} of type {}".format(value, type(value)))
         if (int(value) == 0):
             self.is_on = False
             self.color = self.off_color
