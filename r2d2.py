@@ -8,7 +8,7 @@ from tkinter import *
 # ToDo: Documentation
 # Todo: Aufräumen
 # ToDo: Button presses
-
+ser_port = "/dev/ttyACM0"
 
 class Sensor:
     def __init__(self, name, description, value, unit):
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
     logging.info("Main    : create Serial")
     # ToDO define Serial from shell
-    ser = serial.serial_for_url("/dev/ttyACM1", do_not_open=True)
+    ser = serial.serial_for_url(ser_port, do_not_open=True)
     try:
         logging.info("Main    : open Serial")
         ser.open()
