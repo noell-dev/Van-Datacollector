@@ -48,9 +48,11 @@ class Btn():
             self.color =  self.error_color
         return self.color
         
-    def pressButton(self, serial):
-        logging.info("pressButton {}".format(self.number))
-        serial.write("{}\n".format(self.number).encode("utf-8")) #int(self.number).to_bytes(4, "little") + str("\n").to_bytes()
+
+def pressButton(serial, number):
+        logging.debug("pressButton {}".format(number))
+        serial.write("{}\n".format(number).encode("utf-8"))
+
 
 waageWidth = 200
 waageHeight = 200
@@ -166,8 +168,6 @@ def fullscreen(root):
 
 
 def updateCanvas(canvas, item, x, y):
-    # x = x-waageInnerRadius
-    # y = y-waageInnerRadius
     canvas.move(item, x, y)
 
 if __name__ == "__main__":
@@ -196,7 +196,6 @@ if __name__ == "__main__":
     
     root.geometry("%dx%d+0+0" % (width, height))
     root.bind("<Escape>", lambda a :escape(root))
-    #Added this for fun, when you'll press F1 it will return to a full screen.
     root.bind("<F1>", lambda b: fullscreen(root))
     
     sensor_frame = Frame(root)
@@ -256,17 +255,17 @@ if __name__ == "__main__":
 
 
     button = buttons["out1_hi"]
-    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)
+    btn1 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser, number=1), bg="#DC0F16", width=20, height=10, master=button_frame)
     btn1.pack(side=BOTTOM)
     serial_buttons[button.name] = btn1
 
     button = buttons["out2_hi"]
-    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=10, master=button_frame)
+    btn2 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser, number=2), bg="#DC0F16", width=20, height=10, master=button_frame)
     btn2.pack(side=BOTTOM)
     serial_buttons[button.name] = btn2
 
     button = buttons["out3_hi"]
-    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser), bg="#DC0F16", width=20, height=5, master=button_frame)
+    btn3 = Button(name=button.name, text=button.description, command=lambda: button.pressButton(serial=ser, numer=3), bg="#DC0F16", width=20, height=5, master=button_frame)
     btn3.pack(side=BOTTOM)
     serial_buttons[button.name] = btn3
 
