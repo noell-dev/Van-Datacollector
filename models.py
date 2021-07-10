@@ -1,3 +1,4 @@
+import logging
 class Sensor:
     def __init__(self, name, description, value, unit):
         self.description = description
