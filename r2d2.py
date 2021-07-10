@@ -1,9 +1,9 @@
 import logging
 import threading
-import random
 import serial
 import sys
 from tkinter import *
+from models import *
 
 # ToDo: Documentation
 # Todo: Aufräumen
@@ -43,46 +43,6 @@ entries = {
             'accz': '8.99',
         }
 
-class Sensor:
-    def __init__(self, name, description, value, unit):
-        self.description = description
-        self.name = name
-        self.value = value
-        self.unit = unit
-        self.label = Label(name=self.name, text="{}: {}{}".format(self.description, self.value, self.unit), fg="#000000")
-
-    def updateValue(self, value):
-        self.value = value
-        return "{}: {}{}".format(self.description, self.value, self.unit)
-
-class Btn():
-    def __init__(self, name, description, number,):
-        self.name = name
-        self.description = description
-        self.number = number
-        self.on_color = "#16DC0F"
-        self.off_color = "#DC0F16"
-        self.error_color= "#000000"
-        self.color = self.off_color
-        self.name = name
-        self.text = description
-        self.number = number
-        self.is_on = False
-
-    def updateState(self, value):
-        logging.debug("updateState: {} of type {}".format(value, type(value)))
-        if (int(value) == 0):
-            self.is_on = False
-            self.color = self.off_color    
-        elif (int(value) == 1):
-            self.is_on = True
-            self.color = self.on_color
-        else:
-            self.color =  self.error_color
-        return self.color
-        
-
-
 def updateList(line):
     try:
         newEntry = line.split(":")
@@ -109,6 +69,22 @@ def updateList(line):
         
     except Exception as e:
         logging.error("updateList: {} - {}".format(e, line))
+
+
+def pressButton(serial, number):
+        logging.debug("pressButton {}".format(number))
+        serial.write("{}\n".format(number).encode("utf-8"))
+
+def escape(root):
+        root.geometry("200x200")
+
+def fullscreen(root):
+        width, height = root.winfo_screenwidth(), root.winfo_screenheight()
+        root.geometry("%dx%d+0+0" % (width, height))
+
+
+def updateCanvas(canvas, item, x, y):
+    canvas.move(item, x, y)
 
 class Reader():
     def __init__(self, serial_instance, debug=False):
@@ -153,21 +129,6 @@ class Reader():
         if self.alive:
             self.alive = False
             self.thread_read.join()
-
-def pressButton(serial, number):
-        logging.debug("pressButton {}".format(number))
-        serial.write("{}\n".format(number).encode("utf-8"))
-
-def escape(root):
-        root.geometry("200x200")
-
-def fullscreen(root):
-        width, height = root.winfo_screenwidth(), root.winfo_screenheight()
-        root.geometry("%dx%d+0+0" % (width, height))
-
-
-def updateCanvas(canvas, item, x, y):
-    canvas.move(item, x, y)
 
 if __name__ == "__main__":
     format = "%(asctime)s: %(message)s"
