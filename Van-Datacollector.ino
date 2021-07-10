@@ -216,9 +216,6 @@ void serialEvent() {
     inputString += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
-    if (inChar == '\r') {
-      stringComplete = true;
-    }
     if (inChar == '\n') {
       stringComplete = true;
     }

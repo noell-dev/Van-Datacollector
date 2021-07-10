@@ -50,7 +50,7 @@ class Btn():
         
     def pressButton(self, serial):
         logging.info("pressButton {}".format(self.number))
-        serial.write(int(self.number).to_bytes(4, "little"))
+        serial.write(int(self.number).to_bytes(4, "little") + str("\n").to_bytes())
 
 waageWidth = 200
 waageHeight = 200
