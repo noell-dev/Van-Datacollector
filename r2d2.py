@@ -10,6 +10,39 @@ from tkinter import *
 # ToDo: Button presses
 ser_port = "/dev/ttyACM0"
 
+waageWidth = 200
+waageHeight = 200
+waageCenterX = waageWidth/2
+waageCenterY = waageHeight/2
+waageInnerRadius = 20
+multiplikatorX = (waageCenterX-waageInnerRadius)/10
+multiplikatorY = (waageCenterY-waageInnerRadius)/10
+waageLineWidth = 5
+
+canvas = ""
+bubble = ""
+sensor_labels = {}
+serial_buttons = {}
+    
+sensors = {
+    "temp": Sensor("temp", "Temperatur",   0.0, "°C"),
+    "humi": Sensor("humi", "Luftfeuchte",  0.0, "%"),
+    "pres": Sensor("pres", "Druck",        0.0, "hPa"),
+    "aalt": Sensor("aalt", "Höhe über NN", 0.0, "m"),
+}
+
+buttons = {
+    "out1_hi": Btn("out1_hi", "Wechselrichter", 1),
+    "out2_hi": Btn("out2_hi", "Wechselrichter", 2),
+    "out3_hi": Btn("out3_hi", "Wechselrichter", 3),
+}
+
+entries = {
+            'accx': '0',
+            'accy': '0',
+            'accz': '8.99',
+        }
+
 class Sensor:
     def __init__(self, name, description, value, unit):
         self.description = description
@@ -37,7 +70,7 @@ class Btn():
         self.is_on = False
 
     def updateState(self, value):
-        logging.info("updateState: {} of type {}".format(value, type(value)))
+        logging.debug("updateState: {} of type {}".format(value, type(value)))
         if (int(value) == 0):
             self.is_on = False
             self.color = self.off_color    
@@ -49,45 +82,6 @@ class Btn():
         return self.color
         
 
-def pressButton(serial, number):
-        logging.debug("pressButton {}".format(number))
-        serial.write("{}\n".format(number).encode("utf-8"))
-
-
-waageWidth = 200
-waageHeight = 200
-waageCenterX = waageWidth/2
-waageCenterY = waageHeight/2
-waageInnerRadius = 20
-multiplikatorX = (waageCenterX-waageInnerRadius)/10
-multiplikatorY = (waageCenterY-waageInnerRadius)/10
-waageLineWidth = 5
-
-sensor_labels = {}
-
-serial_buttons = {}
-
-    
-sensors = {
-    "temp": Sensor("temp", "Temperatur",   0.0, "°C"),
-    "humi": Sensor("humi", "Luftfeuchte",  0.0, "%"),
-    "pres": Sensor("pres", "Druck",        0.0, "hPa"),
-    "aalt": Sensor("aalt", "Höhe über NN", 0.0, "m"),
-}
-
-buttons = {
-    "out1_hi": Btn("out1_hi", "Wechselrichter", 1),
-    "out2_hi": Btn("out2_hi", "Wechselrichter", 2),
-    "out3_hi": Btn("out3_hi", "Wechselrichter", 3),
-}
-entries = {
-            'accx': '0',
-            'accy': '0',
-            'accz': '8.99',
-        }
-
-canvas = ""
-bubble = ""
 
 def updateList(line):
     try:
@@ -159,6 +153,10 @@ class Reader():
         if self.alive:
             self.alive = False
             self.thread_read.join()
+
+def pressButton(serial, number):
+        logging.debug("pressButton {}".format(number))
+        serial.write("{}\n".format(number).encode("utf-8"))
 
 def escape(root):
         root.geometry("200x200")
