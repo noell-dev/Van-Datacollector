@@ -14,7 +14,11 @@
 
 /* constants */
 // Estimate Sealevel Pressure to set relative Pressure in abolute relation 
+
+
+/* not used currently
 #define SEALEVELPRESSURE_HPA (1013.25)
+*/
 
 /* Variable Definitions */
 
@@ -28,9 +32,10 @@ char msg[50];
 // Sensors
 float temperature = 0;
 float humidity = 0;
-
+/* not used currently
 float altitude = 0;
 float old_altitude = 0;
+*/
 float accy = 0;
 float accx = 0;
 float accz = 0;
@@ -309,9 +314,6 @@ void loop() {
     
     // Temperature in Celsius
     temperature = bme.readTemperature();
-    // Uncomment the next line to set temperature in Fahrenheit 
-    // (and comment the previous temperature line)
-    //temperature = 1.8 * bme.readTemperature() + 32; // Temperature in Fahrenheit
     
     // Convert the value to a char array
     char tempString[8];
@@ -329,7 +331,7 @@ void loop() {
     Serial.println(humString);
     client.publish("esp32/humidity", humString);
   
-
+/* not used currently
     altitude = bme.readAltitude(SEALEVELPRESSURE_HPA);
     // Convert the value to a char array
     char altString[8];
@@ -337,7 +339,7 @@ void loop() {
     Serial.print("Altitude: ");
     Serial.println(altString);
     client.publish("esp32/altitude", altString);
-
+*/
     /* Get new sensor events with the readings */
     sensors_event_t a, g, t;
     mpu.getEvent(&a, &g, &t);
