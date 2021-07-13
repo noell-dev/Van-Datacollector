@@ -1,79 +1,87 @@
 /*********
-  Rui Santos
-  Complete project details at https://randomnerdtutorials.com  
+  © Tobiah Nöll
+  https://noell.li
 *********/
 
 #include <WiFi.h>
-#include <PubSubClient.h>
-#include <SPI.h>
+// #include <SPI.h>
 #include <Wire.h>
+#include <PubSubClient.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <Adafruit_MPU6050.h>
-
 #include <Adafruit_NeoPixel.h>
 
+/* constants */
+// Estimate Sealevel Pressure to set relative Pressure in abolute relation 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-#define PIN            0
-#define NUMPIXELS      1
+/* Variable Definitions */
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
-// Replace the next variables with your SSID/Password combination
+// MQTT
 const char* ssid = "I come from a LAN down under";
 const char* password = "MisteZuWenigeZeichen";
-
-// Add your MQTT Broker IP address, example:
-//const char* mqtt_server = "192.168.1.144";
 const char* mqtt_server = "10.0.0.219";
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-unsigned long delayTime = 10;
 long lastMsg = 0;
 char msg[50];
-int value = 0;
 
-
-Adafruit_MPU6050 mpu;
-Adafruit_BME280 bme; // I2C
-//Adafruit_BME280 bme(BME_CS); // hardware SPI
-//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
+// Sensors
 float temperature = 0;
 float humidity = 0;
+
 float altitude = 0;
+float old_altitude = 0;
 float accy = 0;
 float accx = 0;
 float accz = 0;
 
-// LED Pin
+// Outputs
 int out1 = 25;
 int out2 = 33;
 int out3 = 32;
 
+// LEDs
+int led1_pin = 0;
+int led1_numpixels = 1;
+int led1_color = 0xFFFFFF;
+bool led1_on = false;
+
+// instantiation from Libs:
+WiFiClient espClient;
+PubSubClient client(espClient);
+Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(led1_numpixels, led1_pin, NEO_GRB + NEO_KHZ800);
+Adafruit_MPU6050 mpu;
+Adafruit_BME280 bme;
+
+
 void setup() {
-  pixels.begin();
+  /* Set up Serial connection, mainly for debugging, might delete later */
   Serial.begin(115200);
-  // default settings
-  // (you can also pass in a Wire library object like &Wire2)
-  //status = bme.begin();  
+
+  /* Connect BME280 Sensor at Sensor ID76 */
   if (!bme.begin(0x76)) {
     Serial.println("Could not find a valid BME280 sensor, check wiring!");
-    while (1);
+    while (1) {
+      delay(10);
+      }
   }
-  // Try to initialize!
+  Serial.println("BME280 Connected!");
+
+  /* Connect MPU6050Sensor */
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 Found!");
+  Serial.println("MPU6050 Connected!");
 
-  
+  /* Initialize Settings on MPU6050 Sensor and */
+  // Accelerometer Range
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   Serial.print("Accelerometer range set to: ");
+
+  /* output to Serial,  might delete Later: */
   switch (mpu.getAccelerometerRange()) {
   case MPU6050_RANGE_2_G:
     Serial.println("+-2G");
@@ -88,7 +96,11 @@ void setup() {
     Serial.println("+-16G");
     break;
   }
+  
+  // Gyrometer Range
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  
+  /* output to Serial,  might delete Later: */
   Serial.print("Gyro range set to: ");
   switch (mpu.getGyroRange()) {
   case MPU6050_RANGE_250_DEG:
@@ -104,8 +116,11 @@ void setup() {
     Serial.println("+- 2000 deg/s");
     break;
   }
-
+  
+  // Filter
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  
+  /* output to Serial,  might delete Later: */
   Serial.print("Filter bandwidth set to: ");
   switch (mpu.getFilterBandwidth()) {
   case MPU6050_BAND_260_HZ:
@@ -131,9 +146,8 @@ void setup() {
     break;
   }
 
-  Serial.println("");
-  delay(100);
-
+  
+/* Seems redundant, delete after Testing
     unsigned status;
     // BME
     status = bme.begin(0x76, &Wire);  
@@ -148,31 +162,38 @@ void setup() {
         Serial.print("        ID of 0x61 represents a BME 680.\n");
         while (1) delay(10);
     }
-  
-  
+*/
+
+  // Start WiFi Connection, 10s Delay
   setup_wifi();
+  
+  // initialize MQTT Client
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 
-    pinMode(out1, OUTPUT); // Setzt den Digitalpin 13 als Outputpin
-    pinMode(out2, OUTPUT); // Setzt den Digitalpin 13 als Outputpin
-    pinMode(out3, OUTPUT); // Setzt den Digitalpin 13 als Outputpin
+  // Initialize Outputs
+  pinMode(out1, OUTPUT);
+  pinMode(out2, OUTPUT);
+  pinMode(out3, OUTPUT);
 }
 
 void setup_wifi() {
   delay(10);
-  // We start by connecting to a WiFi network
+  /* output to Serial,  might delete Later: */
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  // Start connecting
   WiFi.begin(ssid, password);
 
+  // Loop until WiFi is connected
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-
+  
+  /* output to Serial,  might delete Later: */
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
@@ -180,22 +201,22 @@ void setup_wifi() {
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
+  /* output to Serial,  might delete Later: */
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
-  String messageTemp;
   
+  String messageTemp;
+
+  // Concatenate Chars to full message
   for (int i = 0; i < length; i++) {
     Serial.print((char)message[i]);
     messageTemp += (char)message[i];
   }
   Serial.println();
 
-  // Feel free to add more if statements to control more GPIOs with MQTT
-
-  // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
-  // Changes the output state according to the message
-  if (String(topic) == "esp32/out1") {
+  /* Find if the Topic is relevant for us and act accordingly */
+  if (String(topic) == "vc/out1") {
     Serial.print("Changing output 1 to ");
     if(messageTemp == "on"){
       Serial.println("on");
@@ -205,7 +226,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       Serial.println("off");
       digitalWrite(out1, LOW);
     }
-  } else if (String(topic) == "esp32/out2") {
+  } else if (String(topic) == "vc/out2") {
     Serial.print("Changing output 2 to ");
     if(messageTemp == "on"){
       Serial.println("on");
@@ -215,7 +236,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       Serial.println("off");
       digitalWrite(out2, LOW);
     }
-  } else if (String(topic) == "esp32/out3") {
+  } else if (String(topic) == "vc/out3") {
     Serial.print("Changing output 3 to ");
     if(messageTemp == "on"){
       Serial.println("on");
@@ -225,13 +246,32 @@ void callback(char* topic, byte* message, unsigned int length) {
       Serial.println("off");
       digitalWrite(out3, LOW);
     }
-  } else if (String(topic) == "esp32/lamp1") {
+  } else if (String(topic) == "vc/lamp1-color") {
     Serial.println(messageTemp);
-    pixels.setPixelColor(0, strtol(messageTemp.c_str(), NULL, 16)); // Moderately bright green color.
-    pixels.show();
+    led1_color = strtol(messageTemp.c_str(), NULL, 16);
+    if (led1_on) {
+      for (int i=0; i<led1_numpixels; i++){
+        pixels1.setPixelColor(i, led1_color);
+      }
+      pixels1.show();
+      }
+  } else if (String(topic) == "vc/lamp1-out") {
+    Serial.println(messageTemp);
+    if (messageTemp == "on") {
+      led1_on = true;
+      for (int i=0; i<led1_numpixels; i++){
+        pixels1.setPixelColor(i, led1_color);
+      }
+      pixels1.show();
+    } else if (messageTemp == "off"){
+      led1_on = false;
+      pixels1.clear();
+      pixels1.show();
+    }
   }
 }
 
+/* Connect to MQTT */
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -239,11 +279,12 @@ void reconnect() {
     // Attempt to connect
     if (client.connect("ESP8266Client")) {
       Serial.println("connected");
-      // Subscribe
-      client.subscribe("esp32/out1");
-      client.subscribe("esp32/out2");
-      client.subscribe("esp32/out3");
-      client.subscribe("esp32/lamp1");
+      // Subscribe to our Output Topics
+      client.subscribe("vc/out1");
+      client.subscribe("vc/out2");
+      client.subscribe("vc/out3");
+      client.subscribe("vc/lamp1-color");
+      client.subscribe("vc/lamp1-out");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -258,14 +299,16 @@ void loop() {
   if (!client.connected()) {
     reconnect();
   }
+  // Start MQTT Client Loop
   client.loop();
 
+  // Onlay Send new Sensor-Data after 0.5 Seconds (500)
   long now = millis();
   if (now - lastMsg > 500) {
     lastMsg = now;
     
     // Temperature in Celsius
-    temperature = bme.readTemperature();   
+    temperature = bme.readTemperature();
     // Uncomment the next line to set temperature in Fahrenheit 
     // (and comment the previous temperature line)
     //temperature = 1.8 * bme.readTemperature() + 32; // Temperature in Fahrenheit
