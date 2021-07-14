@@ -11,10 +11,13 @@
 #include <Adafruit_BME280.h>
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_NeoPixel.h>
+#include <OneWire.h> 
+#include <DallasTemperature.h>
+
 
 /* constants */
 // Estimate Sealevel Pressure to set relative Pressure in abolute relation 
-
+#define ONE_WIRE_BUS 2 
 
 /* not used currently
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -39,6 +42,7 @@ float old_altitude = 0;
 float accy = 0;
 float accx = 0;
 float accz = 0;
+float outTemp = 0;
 
 // Outputs
 int out1 = 25;
@@ -57,7 +61,8 @@ PubSubClient client(espClient);
 Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(led1_numpixels, led1_pin, NEO_GRB + NEO_KHZ800);
 Adafruit_MPU6050 mpu;
 Adafruit_BME280 bme;
-
+OneWire oneWire(ONE_WIRE_BUS); 
+DallasTemperature sensors(&oneWire);
 
 void setup() {
   /* Set up Serial connection, mainly for debugging, might delete later */
@@ -180,6 +185,9 @@ void setup() {
   pinMode(out1, OUTPUT);
   pinMode(out2, OUTPUT);
   pinMode(out3, OUTPUT);
+
+  // Start OneWire for Outdoor Sensor
+  sensors.begin();
 }
 
 void setup_wifi() {
@@ -371,5 +379,17 @@ void loop() {
     Serial.print("accz: ");
     Serial.println(acczString);
     client.publish("esp32/accz", acczString);
+
+     
+    // Get Outdoor Temp 
+    sensors.requestTemperatures();
+    outTemp = sensors.getTempCByIndex(0);
+  
+    // Convert the value to a char array
+    char outTempString[8];
+    dtostrf(outTemp, 1, 2, outTempString);
+    Serial.print("Outdoor: ");
+    Serial.println(outTempString);
+    client.publish("esp32/outdoorTemp", outTempString);
   }
 }
