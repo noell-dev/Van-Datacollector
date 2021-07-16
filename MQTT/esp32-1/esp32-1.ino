@@ -11,9 +11,9 @@
 #include <Adafruit_BME280.h>
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_ADS1X15.h>
 #include <OneWire.h> 
 #include <DallasTemperature.h>
-
 
 /* constants */
 // Estimate Sealevel Pressure to set relative Pressure in abolute relation 
@@ -63,6 +63,7 @@ Adafruit_MPU6050 mpu;
 Adafruit_BME280 bme;
 OneWire oneWire(ONE_WIRE_BUS); 
 DallasTemperature sensors(&oneWire);
+Adafruit_ADS1115 ads1115; // Construct an ads1115 
 
 void setup() {
   /* Set up Serial connection, mainly for debugging, might delete later */
@@ -155,6 +156,10 @@ void setup() {
     Serial.println("5 Hz");
     break;
   }
+
+  Serial.println("Getting differential reading from AIN0 (P) and AIN1 (N)");
+  Serial.println("ADC Range: +/- 6.144V (1 bit = 3mV)");
+  ads1115.begin();  // Initialize ads1115 at address 0x49
 
   
 /* Seems redundant, delete after Testing
@@ -391,5 +396,17 @@ void loop() {
     Serial.print("Outdoor: ");
     Serial.println(outTempString);
     client.publish("esp32/outdoorTemp", outTempString);
+
+    int16_t voltage;
+    ads1115.setGain(GAIN_SIXTEEN);
+    delay(100);
+    voltage = ads1115.readADC_Differential_0_1();
+    Serial.print("Differential1 GAIN 16 : "); Serial.print(voltage); Serial.print("("); Serial.print(voltage * 0.125); Serial.println("mV)");
+
+    int16_t shunt;
+    ads1115.setGain(GAIN_TWOTHIRDS);
+    delay(100);
+    shunt = ads1115.readADC_Differential_2_3();
+    Serial.print("Differential2 GAIN 2/3: "); Serial.print(shunt); Serial.print("("); Serial.print(shunt * 3); Serial.println("mV)");
   }
 }
