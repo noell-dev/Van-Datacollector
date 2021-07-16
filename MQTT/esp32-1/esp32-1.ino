@@ -26,9 +26,9 @@
 /* Variable Definitions */
 
 // MQTT
-const char* ssid = "I come from a LAN down under";
-const char* password = "MisteZuWenigeZeichen";
-const char* mqtt_server = "10.0.0.219";
+const char* ssid = "SSID";
+const char* password = "PASS";
+const char* mqtt_server = "10.2.0.254";
 long lastMsg = 0;
 char msg[50];
 
@@ -397,16 +397,22 @@ void loop() {
     Serial.println(outTempString);
     client.publish("esp32/outdoorTemp", outTempString);
 
-    int16_t voltage;
+    int16_t shunt;
     ads1115.setGain(GAIN_SIXTEEN);
     delay(100);
-    voltage = ads1115.readADC_Differential_0_1();
-    Serial.print("Differential1 GAIN 16 : "); Serial.print(voltage); Serial.print("("); Serial.print(voltage * 0.125); Serial.println("mV)");
+    shunt = ads1115.readADC_Differential_0_1();
+    char shuntString[8];
+    dtostrf(shunt, 1, 2, shuntString);
+    Serial.print(shuntString);
+    client.publish("esp32/shunt", shuntString);
 
-    int16_t shunt;
+    int16_t voltage;
     ads1115.setGain(GAIN_TWOTHIRDS);
     delay(100);
-    shunt = ads1115.readADC_Differential_2_3();
-    Serial.print("Differential2 GAIN 2/3: "); Serial.print(shunt); Serial.print("("); Serial.print(shunt * 3); Serial.println("mV)");
-  }
+    voltage = ads1115.readADC_Differential_2_3();
+    char voltageString[8];
+    dtostrf(voltage, 1, 2, voltageString);
+    Serial.print("Voltage: ");
+    Serial.println(outTempString);
+    client.publish("esp32/voltage", voltageString);}
 }
