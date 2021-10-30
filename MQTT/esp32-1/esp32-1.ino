@@ -12,23 +12,23 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_ADS1X15.h>
-#include <OneWire.h> 
-#include <DallasTemperature.h>
+//#include <OneWire.h> 
+//#include <DallasTemperature.h>
+
+#include "credentials.h"
+
 
 /* constants */
-// Estimate Sealevel Pressure to set relative Pressure in abolute relation 
-#define ONE_WIRE_BUS 2 
+// #define ONE_WIRE_BUS 2 
 
 /* not used currently
+// Estimate Sealevel Pressure to set relative Pressure in abolute relation 
 #define SEALEVELPRESSURE_HPA (1013.25)
 */
 
 /* Variable Definitions */
 
 // MQTT
-const char* ssid = "SSID";
-const char* password = "PASS";
-const char* mqtt_server = "10.2.0.254";
 long lastMsg = 0;
 char msg[50];
 
@@ -43,6 +43,19 @@ float accy = 0;
 float accx = 0;
 float accz = 0;
 float outTemp = 0;
+
+int16_t shunt;
+int16_t voltage;
+
+//Sensor Char conversions
+char tempString[8];
+char humString[8];
+char accxString[8];
+char accyString[8];
+char acczString[8];
+char outTempString[8];
+char shuntString[16];
+char voltageString[16];
 
 // Outputs
 int out1 = 25;
@@ -61,8 +74,8 @@ PubSubClient client(espClient);
 Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(led1_numpixels, led1_pin, NEO_GRB + NEO_KHZ800);
 Adafruit_MPU6050 mpu;
 Adafruit_BME280 bme;
-OneWire oneWire(ONE_WIRE_BUS); 
-DallasTemperature sensors(&oneWire);
+// OneWire oneWire(ONE_WIRE_BUS); 
+// DallasTemperature sensors(&oneWire);
 Adafruit_ADS1115 ads1115; // Construct an ads1115 
 
 void setup() {
@@ -183,7 +196,7 @@ void setup() {
   setup_wifi();
   
   // initialize MQTT Client
-  client.setServer(mqtt_server, 1883);
+  client.setServer(MQTT_SERVER_IP, MQTT_SERVER_PORT);
   client.setCallback(callback);
 
   // Initialize Outputs
@@ -192,7 +205,7 @@ void setup() {
   pinMode(out3, OUTPUT);
 
   // Start OneWire for Outdoor Sensor
-  sensors.begin();
+  // sensors.begin();
 }
 
 void setup_wifi() {
@@ -200,10 +213,10 @@ void setup_wifi() {
   /* output to Serial,  might delete Later: */
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(SSID);
 
   // Start connecting
-  WiFi.begin(ssid, password);
+  WiFi.begin(SSID, KEY);
 
   // Loop until WiFi is connected
   while (WiFi.status() != WL_CONNECTED) {
@@ -319,26 +332,18 @@ void loop() {
   }
   // Start MQTT Client Loop
   client.loop();
-
-  // Onlay Send new Sensor-Data after 0.5 Seconds (500)
-  long now = millis();
-  if (now - lastMsg > 500) {
-    lastMsg = now;
     
     // Temperature in Celsius
     temperature = bme.readTemperature();
     
     // Convert the value to a char array
-    char tempString[8];
     dtostrf(temperature, 1, 2, tempString);
     Serial.print("Temperature: ");
     Serial.println(tempString);
     client.publish("esp32/temperature", tempString);
 
     humidity = bme.readHumidity();
-    
-    // Convert the value to a char array
-    char humString[8];
+    // Convert the value to a char arra
     dtostrf(humidity, 1, 2, humString);
     Serial.print("Humidity: ");
     Serial.println(humString);
@@ -360,7 +365,6 @@ void loop() {
 
     accx = a.acceleration.x;
     // Convert the value to a char array
-    char accxString[8];
     dtostrf(accx, 1, 2, accxString);
     Serial.print("accx: ");
     Serial.println(accxString);
@@ -369,7 +373,6 @@ void loop() {
 
     accy = a.acceleration.y;
     // Convert the value to a char array
-    char accyString[8];
     dtostrf(accy, 1, 2, accyString);
     Serial.print("accy: ");
     Serial.println(accyString);
@@ -379,40 +382,40 @@ void loop() {
 
     accz = a.acceleration.z;
     // Convert the value to a char array
-    char acczString[8];
     dtostrf(accz, 1, 2, acczString);
     Serial.print("accz: ");
     Serial.println(acczString);
     client.publish("esp32/accz", acczString);
 
-     
+/*
     // Get Outdoor Temp 
     sensors.requestTemperatures();
     outTemp = sensors.getTempCByIndex(0);
-  
+
+
     // Convert the value to a char array
-    char outTempString[8];
     dtostrf(outTemp, 1, 2, outTempString);
     Serial.print("Outdoor: ");
     Serial.println(outTempString);
     client.publish("esp32/outdoorTemp", outTempString);
-
-    int16_t shunt;
-    ads1115.setGain(GAIN_SIXTEEN);
+*/
+/*    ads1115.setGain(GAIN_SIXTEEN);
     delay(100);
-    shunt = ads1115.readADC_Differential_0_1();
-    char shuntString[8];
+    shunt = ads1115.readADC_Differential_2_3();
+
     dtostrf(shunt, 1, 2, shuntString);
-    Serial.print(shuntString);
+    Serial.print("Shunt: ");
+    Serial.println(shuntString);
     client.publish("esp32/shunt", shuntString);
 
-    int16_t voltage;
     ads1115.setGain(GAIN_TWOTHIRDS);
     delay(100);
-    voltage = ads1115.readADC_Differential_2_3();
-    char voltageString[8];
-    dtostrf(voltage, 1, 2, voltageString);
+
+    voltage = ads1115.readADC_Differential_0_1();
+    dtostrf(voltage * 3, 1, 2, voltageString);
     Serial.print("Voltage: ");
-    Serial.println(outTempString);
-    client.publish("esp32/voltage", voltageString);}
+    Serial.println(voltageString);
+    client.publish("esp32/voltage", voltageString);
+   */ 
+    delay(5000);
 }
