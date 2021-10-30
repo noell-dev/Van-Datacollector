@@ -21,6 +21,9 @@
 /* constants */
 // #define ONE_WIRE_BUS 2 
 
+#define I2C_SDA 23
+#define I2C_SCL 22
+
 /* not used currently
 // Estimate Sealevel Pressure to set relative Pressure in abolute relation 
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -69,6 +72,7 @@ int led1_color = 0xFFFFFF;
 bool led1_on = false;
 
 // instantiation from Libs:
+TwoWire I2C = TwoWire(0);
 WiFiClient espClient;
 PubSubClient client(espClient);
 Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(led1_numpixels, led1_pin, NEO_GRB + NEO_KHZ800);
@@ -82,8 +86,10 @@ void setup() {
   /* Set up Serial connection, mainly for debugging, might delete later */
   Serial.begin(115200);
 
+  I2C.begin(I2C_SDA, I2C_SCL, 100000);
+
   /* Connect BME280 Sensor at Sensor ID76 */
-  if (!bme.begin(0x76)) {
+  if (!bme.begin(0x76, &I2C)) {
     Serial.println("Could not find a valid BME280 sensor, check wiring!");
     while (1) {
       delay(10);
@@ -92,7 +98,7 @@ void setup() {
   Serial.println("BME280 Connected!");
 
   /* Connect MPU6050Sensor */
-  if (!mpu.begin()) {
+  if (!mpu.begin(&I2C)) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
@@ -172,7 +178,7 @@ void setup() {
 
   Serial.println("Getting differential reading from AIN0 (P) and AIN1 (N)");
   Serial.println("ADC Range: +/- 6.144V (1 bit = 3mV)");
-  ads1115.begin();  // Initialize ads1115 at address 0x49
+  ads1115.begin(&I2C);  // Initialize ads1115 at address 0x49
 
   
 /* Seems redundant, delete after Testing
